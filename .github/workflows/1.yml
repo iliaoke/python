@@ -31,12 +31,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@main
         with:
-          python-version: "3.11"
+          python-version: "3.15.1"
 
       - name: Install dependencies
         run: pip install requests
@@ -58,4 +58,4 @@ jobs:
           echo "参数: ${ARGS[*]}"
 
           # 脚本是无限循环，用 timeout 到点结束；退出码 124 视为正常
-          timeout "${DURATION}m" python -u grab_v4.py "${ARGS[@]}" || [ $? -eq 124 ]
+          timeout "${DURATION}m" python -u grab_v5.py "${ARGS[@]}" || [ $? -eq 124 ]
