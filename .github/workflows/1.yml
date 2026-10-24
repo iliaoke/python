@@ -18,7 +18,7 @@ on:
       extra_args:
         description: "其他参数，例如 --quiet --check-interval 3"
         required: false
-        default: "--quiet"
+        default: "--check-interval 3"
 
 jobs:
   grab:
