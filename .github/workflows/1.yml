@@ -1,0 +1,61 @@
+name: Run grab_v4
+
+on:
+  workflow_dispatch:
+    inputs:
+      schedule:
+        description: "定时开始时间 HH:MM:SS（北京时间），留空则立即开始"
+        required: false
+        default: ""
+      duration_minutes:
+        description: "最长运行分钟数（脚本会常驻，到时自动结束；GitHub 上限 360）"
+        required: true
+        default: "30"
+      consume_on_exhausted:
+        description: "资格发完后仍继续消耗次数抽积分"
+        type: boolean
+        default: false
+      extra_args:
+        description: "其他参数，例如 --quiet --check-interval 3"
+        required: false
+        default: "--quiet"
+
+jobs:
+  grab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 370
+    env:
+      # 让脚本里的"本地时间"= 北京时间，--schedule 才会按北京时间触发
+      TZ: Asia/Shanghai
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        env:
+          SCHEDULE: ${{ inputs.schedule }}
+          DURATION: ${{ inputs.duration_minutes }}
+          CONSUME: ${{ inputs.consume_on_exhausted }}
+          EXTRA: ${{ inputs.extra_args }}
+        run: |
+          ARGS=()
+          if [ -n "$SCHEDULE" ]; then ARGS+=(--schedule "$SCHEDULE"); fi
+          if [ "$CONSUME" = "true" ]; then ARGS+=(--consume-on-exhausted); fi
+          # shellcheck disable=SC2206
+          ARGS+=($EXTRA)
+
+          echo "当前时间: $(date)"
+          echo "参数: ${ARGS[*]}"
+
+          # 脚本是无限循环，用 timeout 到点结束；退出码 124 视为正常
+          timeout "${DURATION}m" python -u grab_v4.py "${ARGS[@]}" || [ $? -eq 124 ]
