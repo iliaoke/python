@@ -11,10 +11,6 @@ on:
         description: "最长运行分钟数（脚本会常驻，到时自动结束；GitHub 上限 360）"
         required: true
         default: "30"
-      consume_on_exhausted:
-        description: "资格发完后仍继续消耗次数抽积分"
-        type: boolean
-        default: false
       extra_args:
         description: "其他参数，例如 --quiet --check-interval 3"
         required: false
@@ -45,12 +41,10 @@ jobs:
         env:
           SCHEDULE: ${{ inputs.schedule }}
           DURATION: ${{ inputs.duration_minutes }}
-          CONSUME: ${{ inputs.consume_on_exhausted }}
           EXTRA: ${{ inputs.extra_args }}
         run: |
           ARGS=()
           if [ -n "$SCHEDULE" ]; then ARGS+=(--schedule "$SCHEDULE"); fi
-          if [ "$CONSUME" = "true" ]; then ARGS+=(--consume-on-exhausted); fi
           # shellcheck disable=SC2206
           ARGS+=($EXTRA)
 
