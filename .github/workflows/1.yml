@@ -1,4 +1,4 @@
-name: Run grab_v4
+name: Run grab
 
 on:
   workflow_dispatch:
@@ -58,4 +58,4 @@ jobs:
           echo "参数: ${ARGS[*]}"
 
           # 脚本是无限循环，用 timeout 到点结束；退出码 124 视为正常
-          timeout "${DURATION}m" python -u grab_v5.py "${ARGS[@]}" || [ $? -eq 124 ]
+          timeout "${DURATION}m" python -u grab_v7.py "${ARGS[@]}" || [ $? -eq 124 ]
